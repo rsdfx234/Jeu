@@ -1,0 +1,270 @@
+{
+  "app": {
+    "name": "Code Cuillère",
+    "description": "Jeu urbain à énigmes avec récompense de 100 000 F CFA",
+    "theme": {
+      "primaryColor": "#1a1a1a",
+      "secondaryColor": "#ffb800",
+      "backgroundColor": "#0d0d0d",
+      "textColor": "#ffffff",
+      "accentColor": "#ff6b35"
+    },
+    "navigation": {
+      "tabs": [
+        {
+          "name": "Accueil",
+          "icon": "home",
+          "screen": "welcome"
+        },
+        {
+          "name": "Mon Jeu",
+          "icon": "gamepad",
+          "screen": "game",
+          "visibility": "authenticated"
+        },
+        {
+          "name": "Classement",
+          "icon": "trophy",
+          "screen": "leaderboard"
+        },
+        {
+          "name": "Finalistes",
+          "icon": "star",
+          "screen": "finalists"
+        }
+      ]
+    }
+  },
+  "screens": {
+    "welcome": {
+      "type": "form",
+      "title": "Bienvenue dans l'univers mystérieux",
+      "subtitle": "Du Code Cuillère...",
+      "components": [
+        {
+          "type": "rich_text",
+          "content": "🔍 **Un mystère vous attend dans les rues de la ville...**\n\n7 énigmes à résoudre. 1 seul gagnant. 100 000 F CFA à la clé.\n\n*Êtes-vous prêt à relever le défi ?*"
+        },
+        {
+          "type": "form",
+          "action": "add_row",
+          "table": "Joueurs",
+          "fields": [
+            {
+              "name": "nom",
+              "label": "Votre nom",
+              "type": "text",
+              "required": true,
+              "placeholder": "Entrez votre nom complet"
+            },
+            {
+              "name": "whatsapp",
+              "label": "WhatsApp (obligatoire)",
+              "type": "phone",
+              "required": true,
+              "placeholder": "+223 XX XX XX XX"
+            },
+            {
+              "name": "email",
+              "label": "Email (optionnel)",
+              "type": "email",
+              "required": false,
+              "placeholder": "votre@email.com"
+            }
+          ],
+          "submitText": "Commencer l'aventure",
+          "successMessage": "🎯 Bienvenue dans l'univers du Code Cuillère. Résous toutes les énigmes et remporte 100 000 F CFA !"
+        }
+      ]
+    },
+    "game": {
+      "type": "details",
+      "source": "Joueurs",
+      "filter": "user_profile",
+      "components": [
+        {
+          "type": "progress_bar",
+          "source": "enigme_actuelle",
+          "max": 7,
+          "label": "Progression"
+        },
+        {
+          "type": "relation",
+          "source": "enigme_actuelle",
+          "target": "Enigmes",
+          "display": "enigme_detail"
+        }
+      ]
+    },
+    "enigme_detail": {
+      "type": "details",
+      "source": "Enigmes",
+      "components": [
+        {
+          "type": "title",
+          "source": "titre"
+        },
+        {
+          "type": "rich_text",
+          "source": "texte_enigme"
+        },
+        {
+          "type": "image",
+          "source": "image_url",
+          "visibility": "not_empty"
+        },
+        {
+          "type": "text",
+          "label": "🆓 Indice gratuit 1",
+          "source": "indice_gratuit_1"
+        },
+        {
+          "type": "text",
+          "label": "🆓 Indice gratuit 2",
+          "source": "indice_gratuit_2"
+        },
+        {
+          "type": "button_group",
+          "buttons": [
+            {
+              "text": "💡 Indice bonus (100 F)",
+              "action": "show_payment_info",
+              "type": "indice_bonus"
+            },
+            {
+              "text": "🔥 Méga indice (200 F)",
+              "action": "show_payment_info",
+              "type": "mega_indice"
+            },
+            {
+              "text": "✅ Bonne réponse (500 F)",
+              "action": "show_payment_info",
+              "type": "reponse"
+            }
+          ]
+        },
+        {
+          "type": "form",
+          "title": "Votre réponse",
+          "fields": [
+            {
+              "name": "reponse_joueur",
+              "label": "Tapez votre réponse",
+              "type": "text",
+              "required": true
+            }
+          ],
+          "submitText": "Valider",
+          "action": "check_answer"
+        }
+      ]
+    },
+    "payment_info": {
+      "type": "overlay",
+      "components": [
+        {
+          "type": "rich_text",
+          "content": "💳 **Instructions de paiement**\n\n➤ Envoyez le montant demandé au **00223 70 44 67 50**\n   (Orange Money ou Wave)\n\n➤ Puis envoyez la capture d'écran à notre WhatsApp\n\n➤ Vous recevrez l'indice/réponse après validation"
+        },
+        {
+          "type": "button",
+          "text": "Contacter WhatsApp",
+          "action": "open_whatsapp",
+          "url": "https://wa.me/22370446750"
+        }
+      ]
+    },
+    "leaderboard": {
+      "type": "list",
+      "source": "Joueurs",
+      "sort": "enigmes_resolues",
+      "order": "desc",
+      "components": [
+        {
+          "type": "card",
+          "components": [
+            {
+              "type": "text",
+              "source": "nom",
+              "style": "title"
+            },
+            {
+              "type": "text",
+              "source": "enigmes_resolues",
+              "label": "Énigmes résolues"
+            },
+            {
+              "type": "text",
+              "source": "derniere_activite",
+              "label": "Dernière activité"
+            }
+          ]
+        }
+      ]
+    },
+    "finalists": {
+      "type": "list",
+      "source": "Joueurs",
+      "filter": "enigmes_resolues = 7",
+      "components": [
+        {
+          "type": "title",
+          "text": "🏆 Les Finalistes"
+        },
+        {
+          "type": "rich_text",
+          "content": "Félicitations aux joueurs qui ont résolu toutes les énigmes !\n\n**Grand prix : 100 000 F CFA**"
+        },
+        {
+          "type": "button",
+          "text": "Participer au tirage au sort",
+          "action": "join_lottery",
+          "visibility": "user_qualified"
+        },
+        {
+          "type": "card_list",
+          "components": [
+            {
+              "type": "text",
+              "source": "nom",
+              "style": "title"
+            },
+            {
+              "type": "text",
+              "source": "date_completion",
+              "label": "Terminé le"
+            }
+          ]
+        }
+      ]
+    },
+    "admin": {
+      "type": "list",
+      "source": "Joueurs",
+      "visibility": "admin_only",
+      "components": [
+        {
+          "type": "title",
+          "text": "🛠️ Tableau de bord Admin"
+        },
+        {
+          "type": "tabs",
+          "tabs": [
+            {
+              "name": "Joueurs",
+              "content": "players_admin"
+            },
+            {
+              "name": "Paiements",
+              "content": "payments_admin"
+            },
+            {
+              "name": "Énigmes",
+              "content": "enigmas_admin"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
