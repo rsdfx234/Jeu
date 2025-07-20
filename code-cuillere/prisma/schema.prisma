@@ -1,0 +1,115 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  firstName   String
+  whatsapp    String   @unique
+  currentLevel Int     @default(1)
+  score       Int      @default(0)
+  isFinalist  Boolean  @default(false)
+  isWinner    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  progress    UserProgress[]
+  payments    PaymentRequest[]
+
+  @@map("users")
+}
+
+model Riddle {
+  id            String   @id @default(cuid())
+  riddleNumber  Int      @unique // 1 to 7
+  title         String
+  text          String
+  freeHint1     String
+  freeHint2     String
+  bonusHint     String   // 100 F CFA
+  megaHint      String   // 200 F CFA
+  correctAnswer String
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  progress      UserProgress[]
+
+  @@map("riddles")
+}
+
+model UserProgress {
+  id           String   @id @default(cuid())
+  userId       String
+  riddleId     String
+  attempts     Int      @default(0)
+  isCompleted  Boolean  @default(false)
+  answers      String?  // JSON array of attempted answers
+  unlockedHints String? // JSON array of unlocked hints
+  completedAt  DateTime?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  riddle       Riddle   @relation(fields: [riddleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, riddleId])
+  @@map("user_progress")
+}
+
+model PaymentRequest {
+  id              String   @id @default(cuid())
+  userId          String
+  amount          Int      // 100, 200, or 500 F CFA
+  paymentType     String   // "bonus_hint", "mega_hint", "answer"
+  riddleNumber    Int
+  paymentMethod   String   // "orange_money" or "wave"
+  transactionRef  String?  // Reference from payment screenshot
+  status          String   @default("pending") // "pending", "approved", "rejected"
+  screenshotUrl   String?
+  approvedBy      String?  // Admin ID who approved
+  approvedAt      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("payment_requests")
+}
+
+model AdminUser {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  password  String   // Hashed password
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("admin_users")
+}
+
+model AppSettings {
+  id                String   @id @default(cuid())
+  prizeAmount       Int      @default(100000) // Prize in F CFA
+  gameIsActive      Boolean  @default(true)
+  registrationOpen  Boolean  @default(true)
+  winnersCount      Int      @default(0)
+  totalRiddles      Int      @default(7)
+  paymentPhone      String   @default("00223 70446750")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("app_settings")
+}
